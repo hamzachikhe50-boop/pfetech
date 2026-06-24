@@ -423,7 +423,7 @@ with st.sidebar:
 if LOGO_SRC:
     logo_html = f'<img src="{LOGO_SRC}" class="cmr-header-logo" />'
 else:
-    logo_html = '<div class="cmr-header-logo-placeholder">Placez<br><strong>logo.png</strong><br>ici</div>'
+    logo_html = '<div class="cmr-header-logo-placeholder">Placez<br><strong>logo.jpeg</strong><br>ici</div>'
 
 st.markdown(f"""
 <div class="cmr-header">
