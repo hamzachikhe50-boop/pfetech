@@ -322,6 +322,71 @@ html, body, [data-testid="stApp"], [data-testid="stAppViewContainer"] {{
     margin-bottom: 7px;
 }}
 
+/* ── Tableau récapitulatif ── */
+.recap-wrap {{
+    background: {C_SURFACE};
+    border: 1px solid {C_BORDER};
+    border-radius: 12px;
+    padding: 4px;
+    box-shadow: 0 1px 4px rgba(27,79,155,0.05);
+    overflow-x: auto;
+    margin-bottom: 28px;
+}}
+table.recap-table {{
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+}}
+table.recap-table thead th {{
+    background: {C_BLUE_DARK};
+    color: {C_WHITE};
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+    text-align: left;
+    padding: 12px 16px;
+}}
+table.recap-table thead th:first-child {{ border-radius: 8px 0 0 0; }}
+table.recap-table thead th:last-child  {{ border-radius: 0 8px 0 0; }}
+table.recap-table tbody td {{
+    padding: 11px 16px;
+    border-bottom: 1px solid {C_BORDER};
+    color: {C_TEXT};
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.82rem;
+}}
+table.recap-table tbody td.label-cell {{
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+}}
+table.recap-table tbody tr:nth-child(even) {{
+    background: {C_BG};
+}}
+table.recap-table tbody tr:last-child td {{
+    border-bottom: none;
+}}
+table.recap-table tbody tr.total-row td {{
+    background: {C_BLUE_LIGHT};
+    font-weight: 700;
+    border-top: 2px solid {C_BLUE};
+}}
+.uap-dot {{
+    display: inline-block;
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    margin-right: 8px;
+}}
+.badge-ecart {{
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 9px;
+    border-radius: 20px;
+    font-size: 0.76rem;
+    font-weight: 700;
+}}
+
 /* ── Footer ── */
 .cmr-footer {{
     margin-top: 48px;
@@ -446,19 +511,18 @@ st.markdown(f"""
 # ── Gate ─────────────────────────────────────────────────────────────────────
 if file_pt is None or file_pg is None:
     st.markdown(f"""
-    <div style="background:{C_SURFACE};border:1px solid {C_BORDER};border-radius:12px;
-                padding:48px;text-align:center;margin-top:20px;">
-      <div style="font-size:2.5rem;margin-bottom:14px;">📂</div>
-      <div style="font-size:1.1rem;font-weight:600;color:{C_TEXT};margin-bottom:8px;">Fichiers requis</div>
-      <div style="color:{C_MUTED};font-size:0.88rem;line-height:1.7;">
-        Chargez
-        <code style="background:{C_BLUE_LIGHT};color:{C_BLUE};padding:2px 7px;border-radius:4px;font-weight:600;">sum-of-process-time_updated.xlsx</code>
-        et
-        <code style="background:{C_BLUE_LIGHT};color:{C_BLUE};padding:2px 7px;border-radius:4px;font-weight:600;">Pointage.xlsx</code>
-        dans la barre latérale.
-      </div>
-    </div>
-    """, unsafe_allow_html=True)
+<div style="background:{C_SURFACE};border:1px solid {C_BORDER};border-radius:12px;padding:48px;text-align:center;margin-top:20px;">
+  <div style="font-size:2.5rem;margin-bottom:14px;">📂</div>
+  <div style="font-size:1.1rem;font-weight:600;color:{C_TEXT};margin-bottom:8px;">Fichiers requis</div>
+  <div style="color:{C_MUTED};font-size:0.88rem;line-height:1.7;">
+    Chargez
+    <code style="background:{C_BLUE_LIGHT};color:{C_BLUE};padding:2px 7px;border-radius:4px;font-weight:600;">sum-of-process-time_updated.xlsx</code>
+    et
+    <code style="background:{C_BLUE_LIGHT};color:{C_BLUE};padding:2px 7px;border-radius:4px;font-weight:600;">Pointage.xlsx</code>
+    dans la barre latérale.
+  </div>
+</div>
+""", unsafe_allow_html=True)
     st.stop()
 
 
@@ -503,13 +567,12 @@ trend_color    = C_SUCCESS if ecart_global >= 0 else C_RED
 trend_icon     = "▲" if ecart_global >= 0 else "▼"
 
 def kpi_card(label, value, sub, variant="blue", icon="📊"):
-    return f"""
-    <div class="kpi-card {variant}">
-      <div class="kpi-icon-bg">{icon}</div>
-      <div class="kpi-eyebrow">{label}</div>
-      <div class="kpi-value">{value}</div>
-      <div class="kpi-sub">{sub}</div>
-    </div>"""
+    return (f'<div class="kpi-card {variant}">'
+            f'<div class="kpi-icon-bg">{icon}</div>'
+            f'<div class="kpi-eyebrow">{label}</div>'
+            f'<div class="kpi-value">{value}</div>'
+            f'<div class="kpi-sub">{sub}</div>'
+            f'</div>')
 
 eff_str   = f"{eff_globale*100:.1f}%" if pd.notna(eff_globale) else "—"
 best_str  = f"{best_row['UAP']} · {best_row['Date'].strftime('%d/%m/%Y')}" if best_row is not None else "—"
@@ -544,7 +607,7 @@ fig_line.add_hline(y=target_pct, line_dash="dot", line_color=C_TARGET, line_widt
 fig_line.update_layout(**light_layout(height=370,
     legend=dict(orientation="h", y=-0.18, bgcolor=C_SURFACE)))
 fig_line.update_yaxes(ticksuffix=" %")
-st.plotly_chart(fig_line, use_container_width=True)
+st.plotly_chart(fig_line, width='stretch')
 
 
 # ── Section 2 : Bar + Heatmap ────────────────────────────────────────────────
@@ -571,20 +634,20 @@ with colA:
     fig_bar.update_layout(**light_layout(height=300, showlegend=False,
                                           xaxis_title="Efficience (%)", yaxis_title=""))
     fig_bar.update_xaxes(ticksuffix=" %")
-    st.plotly_chart(fig_bar, use_container_width=True)
+    st.plotly_chart(fig_bar, width='stretch')
 
     for _, r in df_avg.sort_values("Efficience_%", ascending=False).iterrows():
         ecart = r["Efficience_%"] - target_pct
         color = C_SUCCESS if ecart >= 0 else C_RED
         icon  = "▲" if ecart >= 0 else "▼"
-        st.markdown(f"""
-        <div class="ecart-row">
-          <span style="font-size:.82rem;color:{C_TEXT};font-weight:600;">{r['UAP']}</span>
-          <div style="display:flex;align-items:center;gap:12px;">
-            <span style="font-family:'Roboto Mono',monospace;font-size:.9rem;color:{C_TEXT};">{r['Efficience_%']:.1f}%</span>
-            <span style="font-size:.78rem;color:{color};font-weight:700;">{icon} {ecart:+.1f} pts</span>
-          </div>
-        </div>""", unsafe_allow_html=True)
+        st.markdown(
+            f'<div class="ecart-row">'
+            f'<span style="font-size:.82rem;color:{C_TEXT};font-weight:600;">{r["UAP"]}</span>'
+            f'<div style="display:flex;align-items:center;gap:12px;">'
+            f'<span style="font-family:\'Roboto Mono\',monospace;font-size:.9rem;color:{C_TEXT};">{r["Efficience_%"]:.1f}%</span>'
+            f'<span style="font-size:.78rem;color:{color};font-weight:700;">{icon} {ecart:+.1f} pts</span>'
+            f'</div>'
+            f'</div>', unsafe_allow_html=True)
 
 with colB:
     pivot = df.pivot_table(index="UAP", columns="Date", values="Efficience_%", aggfunc="mean")
@@ -601,11 +664,79 @@ with colB:
         x=[d.strftime("%d/%m") if hasattr(d,"strftime") else d for d in pivot.columns],
         y=pivot.index,
         colorscale=[[0,"#FDE8E8"],[0.5,"#FFC553"],[1,"#1B4F9B"]],
-        colorbar=dict(title="%", tickfont=dict(color=C_MUTED), titlefont=dict(color=C_MUTED)),
+        colorbar=dict(title=dict(text="%", font=dict(color=C_MUTED)), tickfont=dict(color=C_MUTED)),
         hovertemplate="UAP: %{y}<br>"+x_title+": %{x}<br>Efficience: %{z:.1f}%<extra></extra>",
     ))
     fig_heat.update_layout(**light_layout(height=300, xaxis_title=x_title, yaxis_title=""))
-    st.plotly_chart(fig_heat, use_container_width=True)
+    st.plotly_chart(fig_heat, width='stretch')
+
+
+# ── Section 2bis : Tableau récapitulatif détaillé par UAP ───────────────────
+st.markdown('<div class="section-label">Tableau récapitulatif détaillé par UAP</div>',
+            unsafe_allow_html=True)
+
+df_recap = (df.groupby("UAP", as_index=False)
+              .agg(Temps_Process_h=("Temps_Process_h","sum"),
+                   Heures_Presence=("Heures_Presence","sum"),
+                   Heures_Sup=("Heures_Sup","sum"),
+                   Effectif_HS=("Effectif_HS","sum"),
+                   Jours=("Date","nunique")))
+df_recap["Efficience_%"] = np.where(
+    df_recap["Heures_Presence"]>0,
+    df_recap["Temps_Process_h"]/df_recap["Heures_Presence"]*100, np.nan)
+df_recap["Ecart_pts"] = df_recap["Efficience_%"] - target_pct
+df_recap = df_recap.sort_values("Efficience_%", ascending=False)
+
+def recap_row(r):
+    color = C_SUCCESS if r["Ecart_pts"] >= 0 else C_RED
+    icon  = "▲" if r["Ecart_pts"] >= 0 else "▼"
+    dot   = UAP_COLORS.get(r["UAP"], C_BLUE)
+    return (
+        '<tr>'
+        f'<td class="label-cell"><span class="uap-dot" style="background:{dot};"></span>{r["UAP"]}</td>'
+        f'<td>{r["Temps_Process_h"]:,.0f} h</td>'
+        f'<td>{r["Heures_Presence"]:,.0f} h</td>'
+        f'<td>{r["Efficience_%"]:.1f}%</td>'
+        f'<td><span class="badge-ecart" style="background:{color}1A;color:{color};">{icon} {r["Ecart_pts"]:+.1f} pts</span></td>'
+        f'<td>{r["Heures_Sup"]:,.0f} h</td>'
+        f'<td>{int(r["Effectif_HS"])}</td>'
+        f'<td>{int(r["Jours"])}</td>'
+        '</tr>'
+    )
+
+rows_html = "".join(recap_row(r) for _, r in df_recap.iterrows())
+
+eff_totale = (total_process/total_presence*100) if total_presence > 0 else 0
+ecart_totale = eff_totale - target_pct
+color_tot = C_SUCCESS if ecart_totale >= 0 else C_RED
+icon_tot  = "▲" if ecart_totale >= 0 else "▼"
+total_hs_all = df_recap["Heures_Sup"].sum()
+total_effhs_all = int(df_recap["Effectif_HS"].sum())
+jours_total = df["Date"].nunique()
+
+total_row_html = (
+    '<tr class="total-row">'
+    '<td class="label-cell">TOTAL / MOYENNE</td>'
+    f'<td>{total_process:,.0f} h</td>'
+    f'<td>{total_presence:,.0f} h</td>'
+    f'<td>{eff_totale:.1f}%</td>'
+    f'<td><span class="badge-ecart" style="background:{color_tot}1A;color:{color_tot};">{icon_tot} {ecart_totale:+.1f} pts</span></td>'
+    f'<td>{total_hs_all:,.0f} h</td>'
+    f'<td>{total_effhs_all}</td>'
+    f'<td>{jours_total}</td>'
+    '</tr>'
+)
+
+table_html = (
+    '<div class="recap-wrap"><table class="recap-table"><thead><tr>'
+    '<th>UAP</th><th>Temps process</th><th>Heures présence</th><th>Efficience</th>'
+    '<th>Écart vs objectif</th><th>Heures sup.</th><th>Jours avec HS</th><th>Jours analysés</th>'
+    '</tr></thead><tbody>'
+    + rows_html + total_row_html +
+    '</tbody></table></div>'
+)
+
+st.markdown(table_html, unsafe_allow_html=True)
 
 
 # ── Section 3 : Process vs Présence ─────────────────────────────────────────
@@ -624,7 +755,7 @@ fig_cmp.add_bar(x=df_cmp["UAP"], y=df_cmp["Temps_Process_h"], name="Temps de pro
                 text=[f"{v:,.0f} h" for v in df_cmp["Temps_Process_h"]], textposition="outside")
 fig_cmp.update_layout(**light_layout(height=360, barmode="group",
     legend=dict(orientation="h", y=-0.18), yaxis_title="Heures"))
-st.plotly_chart(fig_cmp, use_container_width=True)
+st.plotly_chart(fig_cmp, width='stretch')
 
 
 # ── Section 4 : Heures sup ───────────────────────────────────────────────────
@@ -662,7 +793,7 @@ with colC:
     fig_hs.update_traces(textposition="outside", marker_line_width=0)
     fig_hs.update_layout(**light_layout(height=280, showlegend=False,
                                          xaxis_title="Heures sup.", yaxis_title=""))
-    st.plotly_chart(fig_hs, use_container_width=True)
+    st.plotly_chart(fig_hs, width='stretch')
 
 with colD:
     if "Date" in df.columns and "Heures_Sup" in df.columns:
@@ -672,7 +803,7 @@ with colD:
         fig_area.update_traces(line=dict(width=1.5))
         fig_area.update_layout(**light_layout(height=280,
             legend=dict(orientation="h", y=-0.25), yaxis_title="Heures sup."))
-        st.plotly_chart(fig_area, use_container_width=True)
+        st.plotly_chart(fig_area, width='stretch')
 
 
 # ── Footer ───────────────────────────────────────────────────────────────────
